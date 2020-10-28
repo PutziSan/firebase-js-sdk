@@ -22,7 +22,6 @@ import {
   CollectionReference,
   DocumentReference,
   DocumentSnapshot,
-  ensureFirestoreConfigured,
   Firestore,
   IndexedDbPersistenceProvider,
   Query,
@@ -41,6 +40,7 @@ import { JsonObject } from '../../src/model/object_value';
 import { doc, key, path as pathFrom } from './helpers';
 import { Provider, ComponentContainer } from '@firebase/component';
 import { TEST_PROJECT } from '../unit/local/persistence_test_helpers';
+import { ensureFirestoreConfigured } from '../../exp/src/api/database';
 
 /**
  * A mock Firestore. Will not work for integration test.
@@ -71,13 +71,13 @@ export function newTestFirestore(): Firestore {
 
 export function collectionReference(path: string): CollectionReference {
   const db = firestore();
-  ensureFirestoreConfigured(db);
+  ensureFirestoreConfigured(db._delegate);
   return new CollectionReference(pathFrom(path), db, /* converter= */ null);
 }
 
 export function documentReference(path: string): DocumentReference {
   const db = firestore();
-  ensureFirestoreConfigured(db);
+  ensureFirestoreConfigured(db._delegate);
   return new DocumentReference(key(path), db, /* converter= */ null);
 }
 

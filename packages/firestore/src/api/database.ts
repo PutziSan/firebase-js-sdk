@@ -105,8 +105,6 @@ import {
   enableMultiTabIndexedDbPersistence,
   enableNetwork,
   ensureFirestoreConfigured,
-  initializeFirestore,
-  initializeStandalone,
   terminate,
   waitForPendingWrites
 } from '../../exp/src/api/database';
@@ -231,17 +229,13 @@ export class IndexedDbPersistenceProvider implements PersistenceProvider {
 export class Firestore
   extends Compat<exp.FirebaseFirestore>
   implements PublicFirestore, FirebaseService {
-  private _firebaseApp?: FirebaseApp;
   private _settings: FirestoreSettings;
 
   // Note: We are using `MemoryComponentProvider` as a default
   // ComponentProvider to ensure backwards compatibility with the format
   // expected by the console build.
   constructor(
-    private readonly _databaseIdOrApp:
-      | FirestoreDatabase
-      | FirebaseApp
-      | FirebaseAppExp,
+    private readonly _databaseIdOrApp: FirestoreDatabase | FirebaseApp,
     private readonly _authProvider: Provider<FirebaseAuthInternalName>,
     private _persistenceProvider: PersistenceProvider = new MemoryPersistenceProvider()
   ) {
@@ -253,21 +247,10 @@ export class Firestore
 
   get _delegate(): exp.FirebaseFirestore {
     if (!this._maybeDelegate) {
-      this._settings.credentials =
-        this._settings.credentials ?? this._authProvider;
-      if (typeof (this._databaseIdOrApp as FirebaseApp).options === 'object') {
-        this._firebaseApp = this._databaseIdOrApp as FirebaseApp;
-        this._maybeDelegate = initializeFirestore(
-          this._firebaseApp,
-          this._settings
-        );
-      } else {
-        this._maybeDelegate = initializeStandalone(
-          this._databaseIdOrApp as FirestoreDatabase,
-          this._authProvider,
-          this._settings
-        );
-      }
+      this._maybeDelegate = new exp.FirebaseFirestore(
+        this._databaseIdOrApp,
+        this._authProvider
+      );
     }
     return this._maybeDelegate!;
   }
@@ -384,14 +367,7 @@ export class Firestore
   }
 
   get app(): FirebaseApp {
-    if (!this._firebaseApp) {
-      throw new FirestoreError(
-        Code.FAILED_PRECONDITION,
-        "Firestore was not initialized using the Firebase SDK. 'app' is " +
-          'not available'
-      );
-    }
-    return this._firebaseApp;
+    return this._delegate.app as FirebaseApp;
   }
 
   INTERNAL = {

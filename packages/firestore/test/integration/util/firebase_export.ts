@@ -66,23 +66,17 @@ export function newTestFirestore(
     nameOrApp = 'test-app-' + appCount++;
   }
 
+  const app =
+    typeof nameOrApp === 'string'
+      ? firebase.initializeApp({ apiKey: 'fake-api-key', projectId }, nameOrApp)
+      : nameOrApp;
+
   if (usesFunctionalApi()) {
-    const app =
-      typeof nameOrApp === 'string'
-        ? initializeApp({ apiKey: 'fake-api-key', projectId }, nameOrApp)
-        : (nameOrApp as FirebaseAppShim)._delegate;
     return new Firestore(
       app,
       new Provider('auth-internal', new ComponentContainer('default'))
     );
   } else {
-    const app =
-      typeof nameOrApp === 'string'
-        ? firebase.initializeApp(
-            { apiKey: 'fake-api-key', projectId },
-            nameOrApp
-          )
-        : nameOrApp;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const firestore = (firebase as any).firestore(app);
     if (settings) {

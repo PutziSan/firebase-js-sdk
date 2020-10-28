@@ -159,16 +159,6 @@ export function initializeFirestore(
   return firestore;
 }
 
-export function initializeStandalone(
-  database: FirestoreDatabase,
-  authProvider: Provider<FirebaseAuthInternalName>,
-  settings: Settings
-): FirebaseFirestore {
-  const firestore = new FirebaseFirestore(database, authProvider);
-  firestore._setSettings(settings);
-  return firestore;
-}
-
 /**
  * Returns the existing instance of Firestore that is associated with the
  * provided {@link FirebaseApp}. If no instance exists, initializes a new

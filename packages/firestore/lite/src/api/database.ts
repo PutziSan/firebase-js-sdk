@@ -25,7 +25,9 @@ import { FirebaseAuthInternalName } from '@firebase/auth-interop-types';
 import {
   CredentialsProvider,
   FirebaseCredentialsProvider,
-  CredentialsSettings
+  CredentialsSettings,
+  EmptyCredentialsProvider,
+  makeCredentialsProvider
 } from '../../../src/api/credentials';
 import { removeComponents } from './components';
 import {
@@ -160,8 +162,8 @@ export class FirestoreSettings {
  */
 export class FirebaseFirestore implements _FirebaseService {
   readonly _databaseId: DatabaseId;
-  readonly _credentials: CredentialsProvider;
   readonly _persistenceKey: string = '(lite)';
+  _credentials: CredentialsProvider;
 
   protected _settings?: Settings;
   private _settingsFrozen = false;
@@ -191,9 +193,8 @@ export class FirebaseFirestore implements _FirebaseService {
         );
       }
       this._databaseId = new DatabaseId(external.projectId, external.database);
+      this._credentials = new EmptyCredentialsProvider();
     }
-
-    this._credentials = new FirebaseCredentialsProvider(authProvider);
   }
 
   /**
@@ -219,7 +220,7 @@ export class FirebaseFirestore implements _FirebaseService {
     return this._terminateTask !== undefined;
   }
 
-  _setSettings(settings: Settings): void {
+  _setSettings(settings: PrivateSettings): void {
     if (this._settingsFrozen) {
       throw new FirestoreError(
         Code.FAILED_PRECONDITION,
@@ -227,6 +228,9 @@ export class FirebaseFirestore implements _FirebaseService {
           'be changed. initializeFirestore() cannot be called after calling ' +
           'getFirestore().'
       );
+    }
+    if (settings.credentials !== undefined) {
+      this._credentials = makeCredentialsProvider(settings.credentials);
     }
     this._settings = settings;
   }
