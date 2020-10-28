@@ -240,20 +240,8 @@ export class Firestore
     super(new exp.FirebaseFirestore(databaseIdOrApp, authProvider));
   }
 
-  get _persistenceKey(): string {
-    return this._delegate._persistenceKey;
-  }
-
   get _databaseId(): DatabaseId {
     return this._delegate._databaseId;
-  }
-
-  get _initialized(): boolean {
-    return !!this._maybeDelegate && this._delegate._initialized;
-  }
-
-  get _terminated(): boolean {
-    return !!this._maybeDelegate && this._delegate._terminated;
   }
 
   settings(settingsLiteral: PublicSettings): void {
@@ -291,15 +279,6 @@ export class Firestore
   }
 
   enablePersistence(settings?: PublicPersistenceSettings): Promise<void> {
-    if (this._initialized) {
-      throw new FirestoreError(
-        Code.FAILED_PRECONDITION,
-        'Firestore has already been started and persistence can no longer ' +
-          'be enabled. You can only call enablePersistence() before calling ' +
-          'any other methods on a Firestore object.'
-      );
-    }
-
     let synchronizeTabs = false;
     let experimentalForceOwningTab = false;
 
