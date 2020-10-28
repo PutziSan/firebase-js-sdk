@@ -73,9 +73,9 @@ export function newTestFirestore(
     ? new Firestore(
         app,
         new Provider('auth-internal', new ComponentContainer('default'))
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       )
-    : (firebase as any).firestore(app);
+    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (firebase as any).firestore(app);
 
   if (settings) {
     firestore.settings(settings);
