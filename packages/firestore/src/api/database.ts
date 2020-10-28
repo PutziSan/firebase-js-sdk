@@ -18,7 +18,6 @@
 import { Value as ProtoValue } from '../protos/firestore_proto_api';
 
 import { FirebaseApp } from '@firebase/app-types';
-import { FirebaseApp as FirebaseAppExp } from '@firebase/app-types-exp';
 import { _FirebaseApp, FirebaseService } from '@firebase/app-types/private';
 import { Blob } from './blob';
 import { DatabaseId } from '../core/database_info';
@@ -78,7 +77,7 @@ import {
 } from '../util/input_validation';
 import { logWarn, setLogLevel as setClientLogLevel } from '../util/log';
 import { AutoId } from '../util/misc';
-import { FieldPath as ExternalFieldPath } from './field_path';
+import { _BaseFieldPath, FieldPath as ExternalFieldPath } from './field_path';
 import {
   CompleteFn,
   ErrorFn,
@@ -141,10 +140,7 @@ import {
   WriteBatch as PublicWriteBatch
 } from '@firebase/firestore-types';
 import { newUserDataReader } from '../../lite/src/api/reference';
-import {
-  FirestoreDatabase,
-  FirestoreSettings
-} from '../../lite/src/api/database';
+import { FirestoreDatabase } from '../../lite/src/api/database';
 import { DEFAULT_HOST } from '../../lite/src/api/components';
 
 /**
@@ -797,11 +793,15 @@ export class DocumentReference<T = DocumentData>
     value?: unknown,
     ...moreFieldsAndValues: unknown[]
   ): Promise<void> {
-    let parsed;
+    if (fieldOrUpdateData instanceof Compat) {
+      fieldOrUpdateData = (fieldOrUpdateData as Compat<_BaseFieldPath>)
+        ._delegate;
+    }
 
+    let parsed;
     if (
       typeof fieldOrUpdateData === 'string' ||
-      fieldOrUpdateData instanceof ExternalFieldPath
+      fieldOrUpdateData instanceof _BaseFieldPath
     ) {
       parsed = parseUpdateVarargs(
         this._dataReader,

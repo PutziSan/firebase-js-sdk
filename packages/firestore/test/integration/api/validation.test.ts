@@ -182,12 +182,8 @@ apiDescribe('Validation:', (persistence: boolean) => {
         }
         expect(() => db.enablePersistence()).to.throw(
           'Firestore has already been started and persistence can no ' +
-            `longer be enabled. You can only ${
-              usesFunctionalApi()
-                ? 'enable persistence'
-                : 'call enablePersistence()'
-            } ` +
-            'before calling any other methods on a Firestore object.'
+            'longer be enabled. You can only enable persistence before ' +
+            'calling any other methods on a Firestore object.'
         );
       }
     );
@@ -211,23 +207,13 @@ apiDescribe('Validation:', (persistence: boolean) => {
   describe('Collection paths', () => {
     validationIt(persistence, 'must be non-empty strings', db => {
       const baseDocRef = db.doc('foo/bar');
-
-      if (usesFunctionalApi()) {
-        expect(() => db.collection('')).to.throw(
-          'Function collection() cannot be called with an empty path.'
-        );
-        expect(() => baseDocRef.collection('')).to.throw(
-          'Function collection() cannot be called with an empty path.'
-        );
-      } else {
-        expect(() => db.collection('')).to.throw(
-          'Function Firestore.collection() cannot be called with an empty path.'
-        );
-        expect(() => baseDocRef.collection('')).to.throw(
-          'Function DocumentReference.collection() cannot be called with an ' +
-            'empty path.'
-        );
-      }
+      expect(() => db.collection('')).to.throw(
+        'Function Firestore.collection() cannot be called with an empty path.'
+      );
+      expect(() => baseDocRef.collection('')).to.throw(
+        'Function DocumentReference.collection() cannot be called with an ' +
+          'empty path.'
+      );
     });
 
     validationIt(persistence, 'must be odd-length', db => {
@@ -271,22 +257,13 @@ apiDescribe('Validation:', (persistence: boolean) => {
     validationIt(persistence, 'must be strings', db => {
       const baseCollectionRef = db.collection('foo');
 
-      if (usesFunctionalApi()) {
-        expect(() => db.doc('')).to.throw(
-          'Function doc() cannot be called with an empty path.'
-        );
-        expect(() => baseCollectionRef.doc('')).to.throw(
-          'Function doc() cannot be called with an empty path.'
-        );
-      } else {
-        expect(() => db.doc('')).to.throw(
-          'Function Firestore.doc() cannot be called with an empty path.'
-        );
-        expect(() => baseCollectionRef.doc('')).to.throw(
-          'Function CollectionReference.doc() cannot be called with an empty ' +
-            'path.'
-        );
-      }
+      expect(() => db.doc('')).to.throw(
+        'Function Firestore.doc() cannot be called with an empty path.'
+      );
+      expect(() => baseCollectionRef.doc('')).to.throw(
+        'Function CollectionReference.doc() cannot be called with an empty ' +
+          'path.'
+      );
     });
 
     validationIt(persistence, 'must be even-length', db => {
@@ -623,9 +600,7 @@ apiDescribe('Validation:', (persistence: boolean) => {
       expect(() =>
         collection.where('test', '==', { test: FieldValue.arrayUnion(1) })
       ).to.throw(
-        `Function ${
-          usesFunctionalApi() ? 'where' : 'Query.where'
-        }() called with invalid data. ` +
+        'Function Query.where() called with invalid data. ' +
           'FieldValue.arrayUnion() can only be used with update() and set() ' +
           '(found in field test)'
       );
@@ -633,9 +608,7 @@ apiDescribe('Validation:', (persistence: boolean) => {
       expect(() =>
         collection.where('test', '==', { test: FieldValue.arrayRemove(1) })
       ).to.throw(
-        `Function ${
-          usesFunctionalApi() ? 'where' : 'Query.where'
-        }() called with invalid data. ` +
+        'Function Query.where() called with invalid data. ' +
           'FieldValue.arrayRemove() can only be used with update() and set() ' +
           '(found in field test)'
       );
@@ -1391,9 +1364,7 @@ function expectWriteToFail(
     `Function ${fnName}() called with invalid data. ${reason}`;
 
   if (includeSets) {
-    expect(() => docRef.set(data)).to.throw(
-      error(usesFunctionalApi() ? 'setDoc' : 'DocumentReference.set')
-    );
+    expect(() => docRef.set(data)).to.throw(error('DocumentReference.set'));
     expect(() => docRef.firestore.batch().set(docRef, data)).to.throw(
       error('WriteBatch.set')
     );
@@ -1401,7 +1372,7 @@ function expectWriteToFail(
 
   if (includeUpdates) {
     expect(() => docRef.update(data)).to.throw(
-      error(usesFunctionalApi() ? 'updateDoc' : 'DocumentReference.update')
+      error('DocumentReference.update')
     );
     expect(() => docRef.firestore.batch().update(docRef, data)).to.throw(
       error('WriteBatch.update')
@@ -1444,14 +1415,10 @@ function expectFieldPathToFail(
     // <=, etc omitted for brevity since the code path is trivially
     // shared.
     expect(() => coll.where(path, '==', 1)).to.throw(
-      `Function ${
-        usesFunctionalApi() ? 'where' : 'Query.where'
-      }() called with invalid data. ` + reason
+      `Function Query.where() called with invalid data. ` + reason
     );
     expect(() => coll.orderBy(path)).to.throw(
-      `Function ${
-        usesFunctionalApi() ? 'orderBy' : 'Query.orderBy'
-      }() called with invalid data. ` + reason
+      `Function Query.orderBy() called with invalid data. ` + reason
     );
 
     // Update paths.

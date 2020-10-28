@@ -32,8 +32,6 @@ import firebase from '@firebase/app';
 import * as exp from '../../../exp/test/shim';
 import { FirebaseApp as FirebaseAppShim } from '../../../exp/test/shim';
 import { FieldValue } from '../../../src/compat/field_value';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { initializeApp } from '@firebase/app-exp';
 import { FirebaseApp } from '@firebase/app-types';
 import { Firestore } from '../../../src/api/database';
 import { Provider, ComponentContainer } from '@firebase/component';
@@ -71,19 +69,18 @@ export function newTestFirestore(
       ? firebase.initializeApp({ apiKey: 'fake-api-key', projectId }, nameOrApp)
       : nameOrApp;
 
-  if (usesFunctionalApi()) {
-    return new Firestore(
-      app,
-      new Provider('auth-internal', new ComponentContainer('default'))
-    );
-  } else {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const firestore = (firebase as any).firestore(app);
-    if (settings) {
-      firestore.settings(settings);
-    }
-    return firestore;
+  const firestore = usesFunctionalApi()
+    ? new Firestore(
+        app,
+        new Provider('auth-internal', new ComponentContainer('default'))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      )
+    : (firebase as any).firestore(app);
+
+  if (settings) {
+    firestore.settings(settings);
   }
+  return firestore;
 }
 
 // We only register firebase.firestore if the tests are run against the

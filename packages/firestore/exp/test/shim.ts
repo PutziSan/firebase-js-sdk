@@ -551,8 +551,11 @@ export class DocumentChange<T = legacy.DocumentData>
 export class CollectionReference<T = legacy.DocumentData>
   extends Query<T>
   implements legacy.CollectionReference<T> {
-  get _delegate(): exp.CollectionReference<T> {
-    return this._maybeDelegate as exp.CollectionReference<T>;
+  constructor(
+    readonly firestore: Firestore,
+    readonly _delegate: exp.CollectionReference<T>
+  ) {
+    super(firestore, _delegate);
   }
 
   readonly id = this._delegate.id;
@@ -598,15 +601,11 @@ export class CollectionReference<T = legacy.DocumentData>
   }
 }
 
-export class FieldPath implements legacy.FieldPath {
-  private readonly fieldNames: string[];
-
+export class FieldPath
+  extends Compat<FieldPathExp>
+  implements legacy.FieldPath {
   constructor(...fieldNames: string[]) {
-    this.fieldNames = fieldNames;
-  }
-
-  get _delegate(): FieldPathExp {
-    return new FieldPathExp(...this.fieldNames);
+    super(new FieldPathExp(...fieldNames));
   }
 
   static documentId(): FieldPath {

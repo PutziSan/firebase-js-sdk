@@ -103,7 +103,7 @@ export function ensureFirestoreConfigured(
 }
 
 export function configureFirestore(firestore: FirebaseFirestore): void {
-  const settings = firestore._getSettings();
+  const settings = firestore._freezeSettings();
   debugAssert(!!settings.host, 'FirestoreSettings.host is not set');
   debugAssert(
     !firestore._firestoreClient,
@@ -199,7 +199,7 @@ export function enableIndexedDbPersistence(
   verifyNotInitialized(firestore);
 
   const client = ensureFirestoreConfigured(firestore);
-  const settings = firestore._getSettings();
+  const settings = firestore._freezeSettings();
 
   const onlineComponentProvider = new OnlineComponentProvider();
   const offlineComponentProvider = new IndexedDbOfflineComponentProvider(
@@ -242,7 +242,7 @@ export function enableMultiTabIndexedDbPersistence(
   verifyNotInitialized(firestore);
 
   const client = ensureFirestoreConfigured(firestore);
-  const settings = firestore._getSettings();
+  const settings = firestore._freezeSettings();
 
   const onlineComponentProvider = new OnlineComponentProvider();
   const offlineComponentProvider = new MultiTabOfflineComponentProvider(

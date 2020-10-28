@@ -165,7 +165,7 @@ export class FirebaseFirestore implements _FirebaseService {
   readonly _persistenceKey: string = '(lite)';
   _credentials: CredentialsProvider;
 
-  protected _settings?: Settings;
+  private _settings = new FirestoreSettings({});
   private _settingsFrozen = false;
 
   // A task that is assigned when the terminate() is invoked and resolved when
@@ -229,21 +229,19 @@ export class FirebaseFirestore implements _FirebaseService {
           'getFirestore().'
       );
     }
+    this._settings = new FirestoreSettings(settings);
     if (settings.credentials !== undefined) {
       this._credentials = makeCredentialsProvider(settings.credentials);
     }
-    this._settings = settings;
   }
 
   _getSettings(): FirestoreSettings {
-    if (!this._settings) {
-      this._settings = {};
-    }
+    return this._settings;
+  }
+
+  _freezeSettings(): FirestoreSettings {
     this._settingsFrozen = true;
-    // if (this._settings._credentials) {
-    //   this._credentials = makeCredentialsProvider(newSettings.credentials);
-    // }
-    return new FirestoreSettings(this._settings);
+    return this._settings;
   }
 
   private static _databaseIdFromApp(app: FirebaseApp): DatabaseId {
