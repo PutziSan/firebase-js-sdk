@@ -205,8 +205,8 @@ describe('Settings', () => {
       merge: true
     });
 
-    expect(db._delegate._freezeSettings().ignoreUndefinedProperties).to.be.true;
-    expect(db._delegate._freezeSettings().host).to.equal('other.host');
+    expect(db._delegate._getSettings().ignoreUndefinedProperties).to.be.true;
+    expect(db._delegate._getSettings().host).to.equal('other.host');
   });
 
   it('gets settings from useEmulator', () => {
