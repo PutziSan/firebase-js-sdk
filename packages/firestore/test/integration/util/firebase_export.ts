@@ -33,7 +33,11 @@ import * as exp from '../../../exp/test/shim';
 import { FirebaseApp as FirebaseAppShim } from '../../../exp/test/shim';
 import { FieldValue } from '../../../src/compat/field_value';
 import { FirebaseApp } from '@firebase/app-types';
-import { Firestore } from '../../../src/api/database';
+import {
+  Firestore,
+  IndexedDbPersistenceProvider,
+  MemoryPersistenceProvider
+} from '../../../src/api/database';
 import { Provider, ComponentContainer } from '@firebase/component';
 
 /**
@@ -72,7 +76,10 @@ export function newTestFirestore(
   const firestore = usesFunctionalApi()
     ? new Firestore(
         app,
-        new Provider('auth-internal', new ComponentContainer('default'))
+        new Provider('auth-internal', new ComponentContainer('default')),
+        process.env.USE_MOCK_PERSISTENCE === 'Yes'
+          ? new IndexedDbPersistenceProvider()
+          : new MemoryPersistenceProvider()
       )
     : // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (firebase as any).firestore(app);
