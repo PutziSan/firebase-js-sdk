@@ -229,31 +229,15 @@ export class IndexedDbPersistenceProvider implements PersistenceProvider {
 export class Firestore
   extends Compat<exp.FirebaseFirestore>
   implements PublicFirestore, FirebaseService {
-  private _settings: FirestoreSettings;
-
   // Note: We are using `MemoryComponentProvider` as a default
   // ComponentProvider to ensure backwards compatibility with the format
   // expected by the console build.
   constructor(
-    private readonly _databaseIdOrApp: FirestoreDatabase | FirebaseApp,
-    private readonly _authProvider: Provider<FirebaseAuthInternalName>,
+    databaseIdOrApp: FirestoreDatabase | FirebaseApp,
+    authProvider: Provider<FirebaseAuthInternalName>,
     private _persistenceProvider: PersistenceProvider = new MemoryPersistenceProvider()
   ) {
-    // We lazy-initialize firestore-exp, since the legacy Firebase API
-    // allows the user to change settings after initialization
-    super(/* delegate */ undefined);
-    this._settings = new FirestoreSettings({});
-  }
-
-  get _delegate(): exp.FirebaseFirestore {
-    if (!this._maybeDelegate) {
-      this._maybeDelegate = new exp.FirebaseFirestore(
-        this._databaseIdOrApp,
-        this._authProvider
-      );
-      this._maybeDelegate._setSettings(this._settings);
-    }
-    return this._maybeDelegate!;
+    super(new exp.FirebaseFirestore(databaseIdOrApp, authProvider));
   }
 
   get _persistenceKey(): string {
@@ -274,26 +258,18 @@ export class Firestore
 
   settings(settingsLiteral: PublicSettings): void {
     if (settingsLiteral.merge) {
-      settingsLiteral = { ...this._settings, ...settingsLiteral };
+      settingsLiteral = {
+        ...this._delegate._getSettings(),
+        ...settingsLiteral
+      };
       // Remove the property from the settings once the merge is completed
       delete settingsLiteral.merge;
     }
-
-    const newSettings = new FirestoreSettings(settingsLiteral);
-    if (this._initialized && !this._settings.isEqual(newSettings)) {
-      throw new FirestoreError(
-        Code.FAILED_PRECONDITION,
-        'Firestore has already been started and its settings can no longer ' +
-          'be changed. You can only modify settings before calling any other ' +
-          'methods on a Firestore object.'
-      );
-    }
-
-    this._settings = newSettings;
+    this._delegate._setSettings(settingsLiteral);
   }
 
   useEmulator(host: string, port: number): void {
-    if (this._settings.host !== DEFAULT_HOST) {
+    if (this._delegate._getSettings().host !== DEFAULT_HOST) {
       logWarn(
         'Host has been set in both settings() and useEmulator(), emulator host will be used'
       );
@@ -433,10 +409,6 @@ export class Firestore
   batch(): PublicWriteBatch {
     ensureFirestoreConfigured(this._delegate);
     return new WriteBatch(this);
-  }
-
-  _getSettings(): FirestoreSettings {
-    return this._settings;
   }
 }
 
