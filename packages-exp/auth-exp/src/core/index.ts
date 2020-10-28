@@ -18,7 +18,7 @@
 import * as externs from '@firebase/auth-types-exp';
 import { CompleteFn, ErrorFn, Unsubscribe } from '@firebase/util';
 
-export { AuthErrorCode } from './errors';
+export { AuthErrorCode, verboseErrorMap, prodErrorMap } from './errors';
 
 // Non-optional auth methods.
 /**
