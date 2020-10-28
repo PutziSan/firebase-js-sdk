@@ -30,7 +30,7 @@ export async function _reauthenticate(
   user: User,
   credential: AuthCredential
 ): Promise<UserCredentialImpl> {
-  const {auth} = user;
+  const { auth } = user;
   const operationType = OperationType.REAUTHENTICATE;
 
   try {

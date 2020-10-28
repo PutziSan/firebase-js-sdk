@@ -110,9 +110,13 @@ export class StsTokenManager {
       manager.accessToken = accessToken;
     }
     if (expirationTime) {
-      _assert(typeof expirationTime === 'number', AuthErrorCode.INTERNAL_ERROR, {
-        appName
-      });
+      _assert(
+        typeof expirationTime === 'number',
+        AuthErrorCode.INTERNAL_ERROR,
+        {
+          appName
+        }
+      );
       manager.expirationTime = expirationTime;
     }
     return manager;
