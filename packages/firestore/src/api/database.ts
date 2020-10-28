@@ -251,6 +251,7 @@ export class Firestore
         this._databaseIdOrApp,
         this._authProvider
       );
+      this._maybeDelegate._setSettings(this._settings);
     }
     return this._maybeDelegate!;
   }
