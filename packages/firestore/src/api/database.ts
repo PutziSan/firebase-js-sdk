@@ -141,7 +141,10 @@ import {
   WriteBatch as PublicWriteBatch
 } from '@firebase/firestore-types';
 import { newUserDataReader } from '../../lite/src/api/reference';
-import { FirestoreSettings } from '../../lite/src/api/database';
+import {
+  FirestoreDatabase,
+  FirestoreSettings
+} from '../../lite/src/api/database';
 import { DEFAULT_HOST } from '../../lite/src/api/components';
 
 /**
@@ -150,15 +153,6 @@ import { DEFAULT_HOST } from '../../lite/src/api/components';
  * `Firestore` instance.
  */
 export const CACHE_SIZE_UNLIMITED = LRU_COLLECTION_DISABLED;
-
-/**
- * Options that can be provided in the Firestore constructor when not using
- * Firebase (aka standalone mode).
- */
-export interface FirestoreDatabase {
-  projectId: string;
-  database?: string;
-}
 
 /**
  * A persistence provider for either memory-only or IndexedDB persistence.
