@@ -37,16 +37,14 @@ import {
 } from '../../../src/core/component_provider';
 import {
   FirebaseFirestore as LiteFirestore,
+  FirestoreDatabase,
   makeDatabaseInfo,
   Settings as LiteSettings
 } from '../../../lite/src/api/database';
 import { Code, FirestoreError } from '../../../src/util/error';
 import { Deferred } from '../../../src/util/promise';
 import { LRU_MINIMUM_CACHE_SIZE_BYTES } from '../../../src/local/lru_garbage_collector';
-import {
-  CACHE_SIZE_UNLIMITED,
-  FirestoreDatabase
-} from '../../../src/api/database';
+import { CACHE_SIZE_UNLIMITED } from '../../../src/api/database';
 import {
   indexedDbClearPersistence,
   indexedDbStoragePrefix
