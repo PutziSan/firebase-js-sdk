@@ -24,10 +24,10 @@
 
 // 'context()' definition requires additional dependency on webpack-env package.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const testsContext = (require as any).context(
+const integrationTestContext = (require as any).context(
   '../../test/integration/api',
   true,
   /^.*\.test\.ts$/
 );
-const browserTests = testsContext.keys();
-browserTests.forEach(testsContext);
+const integrationTests = integrationTestContext.keys();
+integrationTests.forEach(integrationTestContext);
